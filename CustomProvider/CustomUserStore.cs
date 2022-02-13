@@ -18,7 +18,6 @@ public class CustomUserStore : IUserPasswordStore<ApplicationUser>,
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (user == null) throw new ArgumentNullException(nameof(user));
-
         await _context.Users.AddAsync(new Models.User()
         {
             UserName = user.Email,
@@ -48,16 +47,17 @@ public class CustomUserStore : IUserPasswordStore<ApplicationUser>,
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (normalizedUserName == null) throw new ArgumentNullException(nameof(normalizedUserName));
-        var user = await _context.Users.FirstOrDefaultAsync(m => m.UserName == normalizedUserName);
+        var user = await _context.Users.FirstOrDefaultAsync(m => m.UserName.ToLower() == normalizedUserName.ToLower());
 
-        return user != null
-        ? new ApplicationUser()
+        var applicationUser = new ApplicationUser()
         {
-            Email = user.Email,
-            UserName = user.UserName,
-            PasswordHash = user.Password
-        }
-        : null;
+            UserName = normalizedUserName
+        };
+        if (user != null)
+        {
+            applicationUser.Email = user.Email;
+        };
+        return applicationUser;
     }
 
     public Task<string> GetNormalizedUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)
@@ -108,8 +108,10 @@ public class CustomUserStore : IUserPasswordStore<ApplicationUser>,
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (user == null) throw new ArgumentNullException(nameof(user));
+        if (passwordHash == null) throw new ArgumentNullException(nameof(passwordHash));
 
-        return Task.FromResult(user.PasswordHash);
+        user.PasswordHash = passwordHash;
+        return Task.FromResult<object>(null);
     }
 
     public Task SetUserNameAsync(ApplicationUser user, string userName, CancellationToken cancellationToken)
