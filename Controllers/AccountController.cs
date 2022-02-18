@@ -6,6 +6,7 @@ using MvcMovie.CustomProvider;
 using MvcMovie.Models;
 using MvcMovie.Models.AccountViewModels;
 namespace MvcMovie.Controllers;
+[Authorize]
 public class AccountController : Controller
 {
 
@@ -25,7 +26,7 @@ public class AccountController : Controller
     // GET: /Account/Login
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Login(string returnUrl = null)
+    public async Task<IActionResult> Login(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         return View();
@@ -36,7 +37,7 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         if (ModelState.IsValid)
@@ -116,11 +117,8 @@ public class AccountController : Controller
         _logger.LogInformation(4, "User logged out.");
         return RedirectToAction(nameof(HomeController.Index), "Home");
     }
-    [Authorize]
-    public IActionResult Dashboard()
-    {
-        return View();
-    }
+
+
     #region Helpers
 
     private void AddErrors(IdentityResult result)

@@ -1,4 +1,6 @@
 using System.Security.Principal;
+using MvcMovie.Models;
+
 namespace MvcMovie.CustomProvider;
 public class ApplicationUser : IIdentity
 {
@@ -11,4 +13,15 @@ public class ApplicationUser : IIdentity
     public string AuthenticationType { get; set; }
     public bool IsAuthenticated { get; set; }
     public string Name { get; set; }
+    public string SecurityStamp { get; set; }
+    public static ApplicationUser? Create(User? user)
+    {
+        return user == null ? null : new ApplicationUser()
+        {
+            Email = user.Email,
+            UserName = user.UserName,
+            PasswordHash = user.Password,
+            SecurityStamp = Guid.NewGuid().ToString()
+        };
+    }
 }

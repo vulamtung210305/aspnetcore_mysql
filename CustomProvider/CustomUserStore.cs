@@ -28,9 +28,14 @@ public class CustomUserStore : IUserPasswordStore<ApplicationUser>,
         return IdentityResult.Success;
     }
 
-    public Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)
+    public async Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        cancellationToken.ThrowIfCancellationRequested();
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        var deleteUser = await _context.Users.FirstOrDefaultAsync(m => m.Email == user.Email);
+        _context.Users.Remove(deleteUser);
+        await _context.SaveChangesAsync();
+        return IdentityResult.Success;
     }
 
     public void Dispose()
@@ -38,9 +43,18 @@ public class CustomUserStore : IUserPasswordStore<ApplicationUser>,
         // throw new NotImplementedException();
     }
 
-    public Task<ApplicationUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
+    public async Task<ApplicationUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        cancellationToken.ThrowIfCancellationRequested();
+        if (userId == null) throw new ArgumentNullException(nameof(userId));
+        int id;
+        if (!int.TryParse(userId, out id))
+        {
+            throw new ArgumentException("Not a valid user id", nameof(userId));
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+        return ApplicationUser.Create(user);
     }
 
     public async Task<ApplicationUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
@@ -49,15 +63,7 @@ public class CustomUserStore : IUserPasswordStore<ApplicationUser>,
         if (normalizedUserName == null) throw new ArgumentNullException(nameof(normalizedUserName));
         var user = await _context.Users.FirstOrDefaultAsync(m => m.UserName.ToLower() == normalizedUserName.ToLower());
 
-        var applicationUser = new ApplicationUser()
-        {
-            UserName = normalizedUserName
-        };
-        if (user != null)
-        {
-            applicationUser.Email = user.Email;
-        };
-        return applicationUser;
+        return ApplicationUser.Create(user);
     }
 
     public Task<string> GetNormalizedUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)
