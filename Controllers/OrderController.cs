@@ -9,16 +9,17 @@ using MvcMovie.Repositories;
 using MvcMovie.Services;
 using System.Text.Encodings.Web;
 using X.PagedList;
+using Microsoft.AspNetCore.Mvc.Rendering;
 namespace MvcMovie.Controllers
 {
     [Authorize]
-    public class ProductController : Controller
+    public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<ProductController> _logger;
-        private IProductService _service;
+        private readonly ILogger<OrderController> _logger;
+        private IOrderService _service;
 
-        public ProductController(IUnitOfWork unitOfWork, ILogger<ProductController> logger, IProductService service)
+        public OrderController(IUnitOfWork unitOfWork, ILogger<OrderController> logger, IOrderService service)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -32,29 +33,34 @@ namespace MvcMovie.Controllers
         {
             int pageSize = 10;
             int pageIndex = page.HasValue ? Convert.ToInt32(page) : 1;
-            var products = await _unitOfWork.Products.All();
-            return View(products.ToPagedList(pageIndex, pageSize));
+            var orders = await _unitOfWork.Orders.All();
+            return View(orders.ToPagedList(pageIndex, pageSize));
         }
 
         // POST: Product
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var products = await _unitOfWork.Products.All();
+            var orderDto = OrderDto.Create();
+            orderDto.Products.AddRange(products.Select(m => new SelectListItem()
+            {
+                Value = $"{m.Id}",
+                Text = m.Name
+            }).ToList());
+            return View(orderDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Price,ExpiryDate")] ProductDto productDto)
+        public async Task<IActionResult> Create([FromForm] OrderDto orderDto)
         {
 
             if (ModelState.IsValid)
             {
-                // await _unitOfWork.Products.Add(product);
-                // await _unitOfWork.CompleteAsync();
-                var errors = await _service.Validate(productDto);
+                var errors = await _service.Validate(orderDto);
                 if (errors.Count() == 0)
                 {
-                    bool result = await _service.Save(productDto);
+                    bool result = await _service.Save(orderDto);
                     if (result)
                     {
                         TempData["Message"] = "Saved";
@@ -69,17 +75,17 @@ namespace MvcMovie.Controllers
                     }
                 }
             }
-            return View(productDto);
+            return View(orderDto);
         }
         // GET: Product/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _service.GetById(id);
-            if (product == null)
+            var order = await _service.GetById(id);
+            if (order == null)
             {
                 return NotFound();
             }
-            return View(product);
+            return View(order);
         }
 
         // POST: Product/Edit/5
@@ -87,19 +93,19 @@ namespace MvcMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,ExpiryDate")] ProductDto productDto)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,ExpiryDate")] OrderDto orderDto)
         {
-            if (id != productDto.Id)
+            if (id != orderDto.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                var errors = await _service.Validate(productDto);
+                var errors = await _service.Validate(orderDto);
                 if (errors.Count() == 0)
                 {
-                    var result = await _service.Save(productDto);
+                    var result = await _service.Save(orderDto);
                     if (result)
                     {
                         TempData["Message"] = "Saved";
@@ -114,7 +120,7 @@ namespace MvcMovie.Controllers
                     }
                 }
             }
-            return View(productDto);
+            return View(orderDto);
         }
     }
 }

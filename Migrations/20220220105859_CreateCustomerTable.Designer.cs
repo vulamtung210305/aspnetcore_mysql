@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MvcMovie.Data;
 
@@ -10,9 +11,10 @@ using MvcMovie.Data;
 namespace MvcMovie.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220220105859_CreateCustomerTable")]
+    partial class CreateCustomerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,14 +65,9 @@ namespace MvcMovie.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("created_by");
+                        .HasColumnName("created_date");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int")
@@ -79,10 +76,6 @@ namespace MvcMovie.Migrations
                     b.Property<decimal>("DueAmount")
                         .HasColumnType("decimal(15,2)")
                         .HasColumnName("due_amount");
-
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("due_date");
 
                     b.Property<decimal>("GrossAmount")
                         .HasColumnType("decimal(15,2)")
@@ -96,72 +89,11 @@ namespace MvcMovie.Migrations
                         .HasColumnType("decimal(15,2)")
                         .HasColumnName("tax_amount");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("updated_by");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
                     b.ToTable("orders");
-                });
-
-            modelBuilder.Entity("MvcMovie.Models.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    b.Property<decimal>("DueAmount")
-                        .HasColumnType("decimal(15,2)")
-                        .HasColumnName("due_amount");
-
-                    b.Property<decimal>("GrossAmount")
-                        .HasColumnType("decimal(15,2)")
-                        .HasColumnName("gross_amount");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int")
-                        .HasColumnName("order_id");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(15,2)")
-                        .HasColumnName("price");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int")
-                        .HasColumnName("quantity");
-
-                    b.Property<decimal>("TaxAmount")
-                        .HasColumnType("decimal(15,2)")
-                        .HasColumnName("tax_amount");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("order_items");
                 });
 
             modelBuilder.Entity("MvcMovie.Models.Product", b =>
@@ -231,33 +163,9 @@ namespace MvcMovie.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.OrderItem", b =>
-                {
-                    b.HasOne("MvcMovie.Models.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MvcMovie.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("MvcMovie.Models.Customer", b =>
                 {
                     b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("MvcMovie.Models.Order", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

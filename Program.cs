@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MvcMovie.Config;
 using MvcMovie.CustomProvider;
 using MvcMovie.Data;
+using MvcMovie.Repositories;
+using MvcMovie.Services;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -28,6 +31,9 @@ builder.Services.AddTransient<IRoleStore<ApplicationRole>, CustomRoleStore>();
 builder.Services.AddDbContextPool<DataContext>(
       options => options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), ServerVersion.Parse("8.0")
    ));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 

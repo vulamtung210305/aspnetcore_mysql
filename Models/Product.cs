@@ -11,7 +11,7 @@ namespace MvcMovie.Models
         public int Id { get; set; }
         [Column("name")]
         [MaxLength(250)]
-        public string? Name { get; set; }
+        public string Name { get; set; }
         [Column("price", TypeName = "decimal(15, 2)")]
         public decimal Price { get; set; }
         [Column("expiry_date")]
